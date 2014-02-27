@@ -81,18 +81,28 @@ void img2Op(double** imgB,double** imgG,double** imgR,int nbLg,int nbCol){
 
 	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
-			OB[j][i]=(imgR[j][i]-imgG[j][i])/sqrt(2.0); //R-G/sqrt(2)
-			OG[j][i]=(imgR[j][i]+imgG[j][i]-2.0*imgB[j][i])/sqrt(6.0);
-			OR[j][i]=(imgR[j][i]+imgG[j][i]+imgB[j][i])/sqrt(3.0);
+			imgB[j][i]=(imgR[j][i]-imgG[j][i])/sqrt(2.0); //R-G/sqrt(2)
+			imgG[j][i]=(imgR[j][i]+imgG[j][i]-2.0*imgB[j][i])/sqrt(6.0);
+			imgR[j][i]=(imgR[j][i]+imgG[j][i]+imgB[j][i])/sqrt(3.0);
 		}
 	}
-	float* min=seekMin(OB,OG,OR,nbLg,nbCol);
-	float* max=seekMax(OB,OG,OR,nbLg,nbCol);
+	float* min=seekMin(imgB,imgG,imgR,nbLg,nbCol);
+	float* max=seekMax(imgB,imgG,imgR,nbLg,nbCol);
+	/*for (int i =0;i<3;i++){
+		max[i]-=min[i];
+		min[i]=0;
+	}*/
+	cout<<" b "<<min[0]<<" "<<max[0]<<endl<<" g "<<min[1]<<" "<<max[1]<<endl<<" r "<<min[2]<<" "<<max[2]<<endl;
+	system("pause");
 	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
-			imgB[j][i]=(((OB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
-			imgG[j][i]=(((OG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
-			imgR[j][i]=(((OR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
+			//imgB[j][i]=(((OB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
+			//imgG[j][i]=(((OG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
+			//imgR[j][i]=(((OR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
+			imgB[j][i]=(((imgB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
+			imgG[j][i]=(((imgG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
+			imgR[j][i]=(((imgR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
+			//cout<<"b "<<imgB[j][i]<<" g "<<imgG[j][i]<<" r "<<imgR[j][i]<<endl;
 		}
 	}
 }
@@ -341,5 +351,33 @@ Haralick primitiveCoo(float** mat){
 		}
 	}
 	return primitive;
+}
+
+void createTabHaralick(double **imgHue,int nbLg, int nbCol){
+	unsigned int** cooc0 = cooccurrence(imgHue,nbLg,nbCol,0);
+	unsigned int** cooc45 = cooccurrence(imgHue,nbLg,nbCol,45);
+	unsigned int** cooc90 = cooccurrence(imgHue,nbLg,nbCol,90);
+	unsigned int** cooc135 = cooccurrence(imgHue,nbLg,nbCol,135);
+	float **NormMat0=normalize(cooc0);
+	float **NormMat45=normalize(cooc45);
+	float **NormMat90=normalize(cooc90);
+	float **NormMat135=normalize(cooc135);
+	Haralick primitive0 = primitiveCoo(NormMat0);
+	Haralick primitive45 = primitiveCoo(NormMat45);
+	Haralick primitive90 = primitiveCoo(NormMat90);
+	Haralick primitive135 = primitiveCoo(NormMat135);
+	ecrirePrimitive(primitive0,primitive45,primitive90,primitive135);
+}
+
+void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive90,Haralick primitive135){
+	String filename="Primitive.txt";
+	fstream fileHandle;
+	fileHandle.open(filename.c_str(), fstream::out | ios::binary);
+	fileHandle<<"   "<<"Entropie"<<" "<<"Energie"<<" "<<"Uniformite"<<" "<<"HomoLocal"<<" "<<"correlation"<<"\n";
+	fileHandle<<"0 "<<primitive0.Entropie<<" "<<primitive0.Energie<<" "<<primitive0.Uniformite<<" "<<primitive0.homoLocal<<" "<<primitive0.corelation<<"\n";
+	fileHandle<<"45 "<<primitive45.Entropie<<" "<<primitive45.Energie<<" "<<primitive45.Uniformite<<" "<<primitive45.homoLocal<<" "<<primitive45.corelation<<"\n";
+	fileHandle<<"90 "<<primitive90.Entropie<<" "<<primitive90.Energie<<" "<<primitive90.Uniformite<<" "<<primitive90.homoLocal<<" "<<primitive90.corelation<<"\n";
+	fileHandle<<"135 "<<primitive135.Entropie<<" "<<primitive135.Energie<<" "<<primitive135.Uniformite<<" "<<primitive135.homoLocal<<" "<<primitive135.corelation<<"\n";
+
 }
 

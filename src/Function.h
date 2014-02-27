@@ -44,5 +44,7 @@ float Min1Plan(double** img,int nbLg,int nbCol);
 float** normalize(unsigned int** mat);
 void writeCoo(unsigned int** mat,string filename);
 Haralick primitiveCoo(float** mat);
+void createTabHaralick(double **imgHue,int nbLg, int nbCol);
+void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive90,Haralick primitive135);
 
 #endif /* FUNCTION_H_ */

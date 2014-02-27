@@ -31,17 +31,7 @@ int main(){
 	IplImage* imgColHue = reconstruireImage8Bits(imgHue,nbLg,nbCol);
 	String out_img_name="imgHue.jpg";
 	saveImage(out_img_name,imgColHue);
-	unsigned int** cooc0 = cooccurrence(imgHue,nbLg,nbCol,0);
-	unsigned int** cooc45 = cooccurrence(imgHue,nbLg,nbCol,45);
-	unsigned int** cooc90 = cooccurrence(imgHue,nbLg,nbCol,90);
-	unsigned int** cooc135 = cooccurrence(imgHue,nbLg,nbCol,135);
-	/*writeCoo(cooc0,"cooc0.txt");
-	writeCoo(cooc45,"cooc45.txt");
-	writeCoo(cooc90,"cooc90.txt");
-	writeCoo(cooc135,"cooc135.txt");*/
-	float **NormMat=normalize(cooc0);
-	Haralick primitive = primitiveCoo(NormMat);
-	cout<<primitive.Energie<<" "<<primitive.Entropie<<" "<<primitive.corelation<<" "<<primitive.Uniformite<<" "<<primitive.homoLocal<<endl;
+	createTabHaralick(imgHue,nbLg,nbCol);
 	system("pause");
 	return 0;
 
