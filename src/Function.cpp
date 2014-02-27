@@ -70,21 +70,29 @@ unsigned int** cooccurrence(double **imgIn,int nbLg,int nbCol,int direction){
 }
 
 void img2Op(double** imgB,double** imgG,double** imgR,int nbLg,int nbCol){
+	double **OB=new double *[nbLg];
+	double **OG=new double *[nbLg];
+	double **OR=new double *[nbLg];
+	for (int i=0;i<nbLg;i++){
+		OB[i]=new double[nbCol];
+		OG[i]=new double[nbCol];
+		OR[i]=new double[nbCol];
+	}
 
 	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
-			imgB[j][i]=(imgR[j][i]-imgG[j][i])/sqrt(2.0); //R-G/sqrt(2)
-			imgG[j][i]=(imgR[j][i]+imgG[j][i]-2.0*imgB[j][i])/sqrt(6.0);
-			imgR[j][i]=(imgR[j][i]+imgG[j][i]+imgB[j][i])/sqrt(3.0);
+			OB[j][i]=(imgR[j][i]-imgG[j][i])/sqrt(2.0); //R-G/sqrt(2)
+			OG[j][i]=(imgR[j][i]+imgG[j][i]-2.0*imgB[j][i])/sqrt(6.0);
+			OR[j][i]=(imgR[j][i]+imgG[j][i]+imgB[j][i])/sqrt(3.0);
 		}
 	}
-	float* min=seekMin(imgB,imgG,imgR,nbLg,nbCol);
-	float* max=seekMax(imgB,imgG,imgR,nbLg,nbCol);
+	float* min=seekMin(OB,OG,OR,nbLg,nbCol);
+	float* max=seekMax(OB,OG,OR,nbLg,nbCol);
 	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
-			imgB[j][i]=(((imgB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
-			imgG[j][i]=(((imgG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
-			imgR[j][i]=(((imgR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
+			imgB[j][i]=(((OB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
+			imgG[j][i]=(((OG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
+			imgR[j][i]=(((OR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
 		}
 	}
 }
