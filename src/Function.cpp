@@ -379,16 +379,16 @@ void img2NOp(double** NOp1,double** NOp2,double** imgR,double** imgG,double** im
 }
 
 double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,string type){
+	double** voisins=new double*[3];
+	for (int i =0;i<3;i++){
+		voisins[i]=new double[3];
+	}
 	if (type=="nOpp"){
 		double** NOp1=new double*[nbLg];
 		double** NOp2=new double*[nbLg];
 		for (int i=0;i<nbLg;i++){
 			NOp1[i]=new double[nbCol];
 			NOp2[i]=new double[nbCol];
-		}
-		double** voisins=new double*[3];
-		for (int i =0;i<3;i++){
-			voisins[i]=new double[3];
 		}
 		for (int i=1;i<nbCol-1;i++){
 			for (int j=1;j<nbLg-1;j++){
@@ -397,6 +397,16 @@ double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,
 		}
 	}
 	else if(type=="Opp"){
+		imgOut=new double**[3];
+		double** Op1=new double*[nbLg];
+		double** Op2=new double*[nbLg];
+		double** Op3=new double*[nbLg];
+		for (int i=0; i<nbLg; i++){
+			Op1[i]= new double[nbCol];
+			Op2[i]= new double[nbCol];
+			Op3[i]= new double[nbCol];
+		}
+
 
 	}
 	else{
@@ -405,7 +415,7 @@ double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,
 
 }
 
-double** retVoisins(int i,int j,double** voisins,double** img){
+void retVoisins(int i,int j,double** voisins,double** img){
 
 }
 
