@@ -430,7 +430,7 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 			Op2[i]= new double[nbCol];
 			Op3[i]= new double[nbCol];
 		}
-		double S;
+		double S=0.0;
 		img2Op(imgB,imgG,imgR,nbLg,nbCol);
 		for (int i=1; i<nbCol-1; i++){
 			for(int j=1; j<nbLg-1; j++){
