@@ -398,15 +398,15 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 			NOp1[i]=new double[nbCol];
 			NOp2[i]=new double[nbCol];
 		}
-		double S;
 		img2NOp(NOp1,NOp2,imgB,imgG,imgR,nbLg,nbCol);
+		double S;
 		for (int i=1;i<nbCol-1;i++){
 			for (int j=1;j<nbLg-1;j++){
 				retVoisins(i,j,voisins,NOp1);
 				double resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
-						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						S=(voisins[x][y]-voisins[1][1])==0 ? 0 : 1;
 						resInt+=S*pow(2,7.0);
 					}
 				}
@@ -479,7 +479,28 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 
 	}
 	else{
-
+		imgOut=new double**[1];
+		double** imgHue=new double*[nbLg];
+		imgOut[0]=new double*[nbLg];
+		for (int j=0;j<nbLg;j++){
+			imgOut[0][j]=new double [nbCol];
+			imgHue[j]=new double[nbCol];
+		}
+		double S;
+		imgHue=img2Hue(imgB,imgG,imgR,nbLg,nbCol);
+		for (int i=1;i<nbCol-1;i++){
+			for (int j=1;j<nbLg-1;j++){
+				retVoisins(i,j,voisins,imgHue);
+				double resInt=0.0;
+				for (int x=0;x<2;x++){
+					for (int y=0;y<2;y++){
+						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						resInt+=S*pow(2,7.0);
+					}
+				}
+				imgOut[0][j][i]=resInt;
+			}
+		}
 	}
 	return imgOut;
 }
