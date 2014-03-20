@@ -403,8 +403,11 @@ double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,
 		for (int i=1;i<nbCol-1;i++){
 			for (int j=1;j<nbLg-1;j++){
 				retVoisins(i,j,voisins,NOp1);
-				for (int x=0;x<2;x++)
-				imgOut[0][j][i]=
+				for (int x=0;x<2;x++){
+					for (int y=0;y<2;y++){
+
+					}
+				}
 			}
 		}
 	}
