@@ -427,6 +427,8 @@ double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,
 			Op2[i]= new double[nbCol];
 			Op3[i]= new double[nbCol];
 		}
+		double S;
+		img2Op(imgB,imgG,imgR,nbLg,nbCol);
 		for (int i=1; i<nbCol-1; i++){
 			for(int j=1; j<nbLg-1; j++){
 				retVoisins(i,j,voisins,Op1);
