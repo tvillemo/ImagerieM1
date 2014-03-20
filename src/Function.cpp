@@ -407,6 +407,12 @@ double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,
 	}
 	else if(type=="Opp"){
 		imgOut=new double**[3];
+		for (int i=0; i<3; i++){
+			imgOut[i]=new double*[nbLg];
+			for(int j=0; j<nbLg; j++){
+				imgOut[i][j]=new double[nbCol];
+			}
+		}
 		double** Op1=new double*[nbLg];
 		double** Op2=new double*[nbLg];
 		double** Op3=new double*[nbLg];
@@ -414,6 +420,11 @@ double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,
 			Op1[i]= new double[nbCol];
 			Op2[i]= new double[nbCol];
 			Op3[i]= new double[nbCol];
+		}
+		for (int i=1; i<nbCol-1; i++){
+			for(int j=1; j<nbLg-1; j++){
+				retVoisins(i,j,voisins,Op1);
+			}
 		}
 
 
