@@ -17,7 +17,7 @@
 using namespace cv;
 
 int main(){
-	string filename="Images/Leaves_3.jpg";
+	string filename="Images/Leaves_4.jpg";
 	IplImage* img=cvLoadImage(const_cast<char*>(filename.c_str()));
 	if (!img)
 		cout<<"erreur"<<endl;
@@ -30,8 +30,8 @@ int main(){
 	double** imgHue = img2Hue(imgB, imgG, imgR,nbLg,nbCol);
 	IplImage* imgColHue = reconstruireImage8Bits(imgHue,nbLg,nbCol);
 	String out_img_name="imgHue.jpg";
-	saveImage(out_img_name,imgColHue);
-	createTabHaralick(imgHue,nbLg,nbCol);
+	/*saveImage(out_img_name,imgColHue);
+	createTabHaralick(imgHue,nbLg,nbCol,filename);*/
 	system("pause");
 	return 0;
 }

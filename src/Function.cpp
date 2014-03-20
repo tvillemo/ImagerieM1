@@ -87,21 +87,12 @@ void img2Op(double** imgB,double** imgG,double** imgR,int nbLg,int nbCol){
 		}
 	}
 	for (int i=0;i<nbCol;i++){
-			for (int j=0;j<nbLg;j++){
-				imgB[j][i]=OB[j][i];
-				imgG[j][i]=OG[j][i];
-				imgR[j][i]=OR[j][i];
-			}
-		}
-	/*float* min=seekMin(OB,OG,OR,nbLg,nbCol);
-	float* max=seekMax(OB,OG,OR,nbLg,nbCol);
-	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
-			imgB[j][i]=(((OB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
-			imgG[j][i]=(((OG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
-			imgR[j][i]=(((OR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
+			imgB[j][i]=OB[j][i];
+			imgG[j][i]=OG[j][i];
+			imgR[j][i]=OR[j][i];
 		}
-	}*/
+	}
 }
 
 //fonction d'enregistrement d'une image en format JPEG
@@ -210,7 +201,6 @@ double** img2Hue(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol){
 				imgG[j][i]=M_PI/2.0;
 			}
 			imgC[j][i]=atan(imgB[j][i]/imgG[j][i]);
-
 		}
 	}
 	float max= Max1Plan(imgC, nbLg, nbCol);
@@ -346,7 +336,7 @@ Haralick primitiveCoo(float** mat){
 	return primitive;
 }
 
-void createTabHaralick(double **imgHue,int nbLg, int nbCol){
+void createTabHaralick(double **imgHue,int nbLg, int nbCol, string name){
 	unsigned int** cooc0 = cooccurrence(imgHue,nbLg,nbCol,0);
 	unsigned int** cooc45 = cooccurrence(imgHue,nbLg,nbCol,45);
 	unsigned int** cooc90 = cooccurrence(imgHue,nbLg,nbCol,90);
@@ -363,17 +353,59 @@ void createTabHaralick(double **imgHue,int nbLg, int nbCol){
 	writeCoo(cooc45,"coo45.txt");
 	writeCoo(cooc90,"coo90.txt");
 	writeCoo(cooc135,"coo135.txt");
-	ecrirePrimitive(primitive0,primitive45,primitive90,primitive135);
+	ecrirePrimitive(primitive0,primitive45,primitive90,primitive135,name);
 }
 
-void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive90,Haralick primitive135){
+void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive90,Haralick primitive135,string name){
 	String filename="Primitive.csv";
 	fstream fileHandle;
 	fileHandle.open(filename.c_str(), fstream::out|fstream::app | ios::binary);
-	fileHandle<<"Entropie"<<";"<<"Energie"<<";"<<"Uniformite"<<";"<<"HomoLocal"<<";"<<"correlation"<<"\n";
+	fileHandle<<name<<"\n";
+	fileHandle<<";"<<"Entropie"<<";"<<"Energie"<<";"<<"Uniformite"<<";"<<"HomoLocal"<<";"<<"correlation"<<"\n";
 	fileHandle<<"0;"<<primitive0.Entropie<<";"<<primitive0.Energie<<";"<<primitive0.Uniformite<<";"<<primitive0.homoLocal<<";"<<primitive0.corelation<<"\n";
 	fileHandle<<"45;"<<primitive45.Entropie<<";"<<primitive45.Energie<<";"<<primitive45.Uniformite<<";"<<primitive45.homoLocal<<";"<<primitive45.corelation<<"\n";
 	fileHandle<<"90;"<<primitive90.Entropie<<";"<<primitive90.Energie<<";"<<primitive90.Uniformite<<";"<<primitive90.homoLocal<<";"<<primitive90.corelation<<"\n";
 	fileHandle<<"135;"<<primitive135.Entropie<<";"<<primitive135.Energie<<";"<<primitive135.Uniformite<<";"<<primitive135.homoLocal<<";"<<primitive135.corelation<<"\n";
+}
+
+void img2NOp(double** NOp1,double** NOp2,double** imgR,double** imgG,double** imgB,int nbLg, int nbCol){
+	img2Op(imgR,imgG,imgB,nbLg,nbCol);
+	for (int i=0;i<nbCol;i++){
+		for (int j=0;j<nbLg;j++){
+			NOp1[j][i] = imgB[j][i]==0 ? 0 : imgR[j][i]/imgB[j][i];
+			NOp1[j][i] = imgB[j][i]==0 ? 0 : imgG[j][i]/imgB[j][i];
+		}
+	}
+}
+
+double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,string type){
+	if (type=="nOpp"){
+		double** NOp1=new double*[nbLg];
+		double** NOp2=new double*[nbLg];
+		for (int i=0;i<nbLg;i++){
+			NOp1[i]=new double[nbCol];
+			NOp2[i]=new double[nbCol];
+		}
+		double** voisins=new double*[3];
+		for (int i =0;i<3;i++){
+			voisins[i]=new double[3];
+		}
+		for (int i=1;i<nbCol-1;i++){
+			for (int j=1;j<nbLg-1;j++){
+				retVoisins(i,j,voisins,NOp1);
+			}
+		}
+	}
+	else if(type=="Opp"){
+
+	}
+	else{
+
+	}
+
+}
+
+double** retVoisins(int i,int j,double** voisins,double** img){
+
 }
 
