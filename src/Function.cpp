@@ -368,7 +368,7 @@ void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive
 	fileHandle<<"135;"<<primitive135.Entropie<<";"<<primitive135.Energie<<";"<<primitive135.Uniformite<<";"<<primitive135.homoLocal<<";"<<primitive135.corelation<<"\n";
 }
 
-void img2NOp(double** NOp1,double** NOp2,double** imgR,double** imgG,double** imgB,int nbLg, int nbCol){
+void img2NOp(double** NOp1,double** NOp2,double** imgB,double** imgG,double** imgR,int nbLg, int nbCol){
 	img2Op(imgR,imgG,imgB,nbLg,nbCol);
 	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
@@ -378,7 +378,7 @@ void img2NOp(double** NOp1,double** NOp2,double** imgR,double** imgG,double** im
 	}
 }
 
-double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,string type){
+double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,string type){
 	double*** imgOut;
 	double** voisins=new double*[3];
 	for (int i =0;i<3;i++){
@@ -399,15 +399,18 @@ double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol,
 			NOp2[i]=new double[nbCol];
 		}
 		double S;
-		img2NOp(NOp1,NOp2,imgR,imgG,imgB,nbLg,nbCol);
+		img2NOp(NOp1,NOp2,imgB,imgG,imgR,nbLg,nbCol);
 		for (int i=1;i<nbCol-1;i++){
 			for (int j=1;j<nbLg-1;j++){
 				retVoisins(i,j,voisins,NOp1);
+				double resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
-
+						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						resInt+=S*pow(2,7.0);
 					}
 				}
+				imgOut[0][j][i]=resInt;
 			}
 		}
 	}
