@@ -411,6 +411,16 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 					}
 				}
 				imgOut[0][j][i]=resInt;
+
+				retVoisins(i,j,voisins,NOp2);
+				double resInt=0.0;
+				for (int x=0;x<2;x++){
+					for (int y=0;y<2;y++){
+						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						resInt+=S*pow(2,7.0);
+					}
+				}
+				imgOut[1][j][i]=resInt;
 			}
 		}
 	}
