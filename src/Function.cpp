@@ -378,8 +378,9 @@ void img2NOp(double** NOp1,double** NOp2,double** imgB,double** imgG,double** im
 	}
 }
 
-double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,string type){
+void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,string type){
 	double*** imgOut;
+	double resInt=0.0;
 	double** voisins=new double*[3];
 	for (int i =0;i<3;i++){
 		voisins[i]=new double[3];
@@ -390,6 +391,13 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 			imgOut[i]=new double*[nbLg];
 			for (int j=0;j<nbLg;j++){
 				imgOut[i][j]=new double [nbCol];
+			}
+		}
+		for(int z=0;z<2;z++){
+			for (int i=0;i<nbCol;i++){
+				for (int j=0;j<nbLg;j++){
+					imgOut[z][j][i]=0.0;
+				}
 			}
 		}
 		double** NOp1=new double*[nbLg];
@@ -403,7 +411,7 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 		for (int i=1;i<nbCol-1;i++){
 			for (int j=1;j<nbLg-1;j++){
 				retVoisins(i,j,voisins,NOp1);
-				double resInt=0.0;
+				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
 						S=(voisins[x][y]-voisins[1][1])==0 ? 0 : 1;
@@ -413,7 +421,7 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 				imgOut[0][j][i]=resInt;
 
 				retVoisins(i,j,voisins,NOp2);
-				double resInt=0.0;
+				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
 						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
@@ -423,6 +431,16 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 				imgOut[1][j][i]=resInt;
 			}
 		}
+		double max0=Max1Plan(imgOut[0],nbLg,nbCol);
+		double max1=Max1Plan(imgOut[1],nbLg,nbCol);
+		double min0=Min1Plan(imgOut[0],nbLg,nbCol);
+		double min1=Min1Plan(imgOut[1],nbLg,nbCol);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0));
+				imgOut[1][j][i]=(((imgOut[1][j][i]-min1))/(max1-min1));
+			}
+		}
 	}
 	else if(type=="Opp"){
 		imgOut=new double**[3];
@@ -430,6 +448,13 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 			imgOut[i]=new double*[nbLg];
 			for(int j=0; j<nbLg; j++){
 				imgOut[i][j]=new double[nbCol];
+			}
+		}
+		for(int z=0;z<3;z++){
+			for (int i=0;i<nbCol;i++){
+				for (int j=0;j<nbLg;j++){
+					imgOut[z][j][i]=0.0;
+				}
 			}
 		}
 		double** Op1=new double*[nbLg];
@@ -445,7 +470,7 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 		for (int i=1; i<nbCol-1; i++){
 			for(int j=1; j<nbLg-1; j++){
 				retVoisins(i,j,voisins,Op1);
-				double resInt=0.0;
+				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
 						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
@@ -455,7 +480,7 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 				imgOut[0][j][i]=resInt;
 
 				retVoisins(i,j,voisins,Op2);
-				double resInt=0.0;
+				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
 						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
@@ -465,7 +490,7 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 				imgOut[1][j][i]=resInt;
 
 				retVoisins(i,j,voisins,Op3);
-				double resInt=0.0;
+				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
 						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
@@ -475,7 +500,19 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 				imgOut[2][j][i]=resInt;
 			}
 		}
-
+		double max0=Max1Plan(imgOut[0],nbLg,nbCol);
+		double max1=Max1Plan(imgOut[1],nbLg,nbCol);
+		double max2=Max1Plan(imgOut[2],nbLg,nbCol);
+		double min0=Min1Plan(imgOut[0],nbLg,nbCol);
+		double min1=Min1Plan(imgOut[1],nbLg,nbCol);
+		double min2=Min1Plan(imgOut[2],nbLg,nbCol);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0));
+				imgOut[1][j][i]=(((imgOut[1][j][i]-min1))/(max1-min1));
+				imgOut[2][j][i]=(((imgOut[2][j][i]-min2))/(max2-min2));
+			}
+		}
 
 	}
 	else{
@@ -485,6 +522,11 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 		for (int j=0;j<nbLg;j++){
 			imgOut[0][j]=new double [nbCol];
 			imgHue[j]=new double[nbCol];
+		}
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				imgOut[0][j][i]=0.0;
+			}
 		}
 		double S;
 		imgHue=img2Hue(imgB,imgG,imgR,nbLg,nbCol);
@@ -501,8 +543,15 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 				imgOut[0][j][i]=resInt;
 			}
 		}
+		double max0=Max1Plan(imgOut[0],nbLg,nbCol);
+		double min0=Min1Plan(imgOut[0],nbLg,nbCol);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0));
+			}
+		}
 	}
-	return imgOut;
+	ecrireLBP(imgOut,nbLg,nbCol,type);
 }
 
 void retVoisins(int i,int j,double** voisins,double** img){
@@ -518,3 +567,53 @@ void retVoisins(int i,int j,double** voisins,double** img){
 
 }
 
+void ecrireLBP(double ***LBP,int nbLg, int nbCol,string name){
+	if(name=="nOpp"){
+		String filename0=name+"0.csv";
+		fstream fileHandle0;
+		fileHandle0.open(filename0.c_str(), fstream::out|fstream::app | ios::binary);
+		String filename1=name+"1.csv";
+		fstream fileHandle1;
+		fileHandle1.open(filename1.c_str(), fstream::out|fstream::app | ios::binary);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				fileHandle0<<LBP[0][j][i]<<";";
+				fileHandle1<<LBP[1][j][i]<<";";
+			}
+			fileHandle0<<"\n";
+			fileHandle1<<"\n";
+		}
+	}
+	else if(name=="Opp"){
+		String filename0=name+"0.csv";
+		fstream fileHandle0;
+		fileHandle0.open(filename0.c_str(), fstream::out|fstream::app | ios::binary);
+		String filename1=name+"1.csv";
+		fstream fileHandle1;
+		fileHandle1.open(filename1.c_str(), fstream::out|fstream::app | ios::binary);
+		String filename2=name+"2.csv";
+		fstream fileHandle2;
+		fileHandle2.open(filename2.c_str(), fstream::out|fstream::app | ios::binary);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				fileHandle0<<LBP[0][j][i]<<";";
+				fileHandle1<<LBP[1][j][i]<<";";
+				fileHandle2<<LBP[2][j][i]<<";";
+			}
+			fileHandle0<<"\n";
+			fileHandle1<<"\n";
+			fileHandle2<<"\n";
+		}
+	}
+	else{
+		String filename0=name+".csv";
+		fstream fileHandle0;
+		fileHandle0.open(filename0.c_str(), fstream::out|fstream::app | ios::binary);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				fileHandle0<<LBP[0][j][i]<<";";
+			}
+			fileHandle0<<"\n";
+		}
+	}
+}
