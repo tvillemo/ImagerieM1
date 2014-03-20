@@ -22,9 +22,9 @@ int main(){
 	if (!img)
 		cout<<"erreur"<<endl;
 
-	double** imgB = planCouleur(img,0);
-	double** imgG = planCouleur(img,1);
-	double** imgR = planCouleur(img,2);
+	double** imgB = planCouleur(img,1);
+	double** imgG = planCouleur(img,2);
+	double** imgR = planCouleur(img,3);
 	int nbCol=cvGetSize(img).width; //largeur (nombre de colonnes)
 	int nbLg=cvGetSize(img).height;// hauteur (nombre de lignes)
 	double** imgHue = img2Hue(imgB, imgG, imgR,nbLg,nbCol);
@@ -34,6 +34,5 @@ int main(){
 	createTabHaralick(imgHue,nbLg,nbCol);
 	system("pause");
 	return 0;
-
 }
 

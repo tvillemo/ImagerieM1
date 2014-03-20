@@ -81,30 +81,27 @@ void img2Op(double** imgB,double** imgG,double** imgR,int nbLg,int nbCol){
 
 	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
-			imgB[j][i]=(imgR[j][i]-imgG[j][i])/sqrt(2.0); //R-G/sqrt(2)
-			imgG[j][i]=(imgR[j][i]+imgG[j][i]-2.0*imgB[j][i])/sqrt(6.0);
-			imgR[j][i]=(imgR[j][i]+imgG[j][i]+imgB[j][i])/sqrt(3.0);
+			OB[j][i]=(imgR[j][i]-imgG[j][i])/sqrt(2.0); //R-G/sqrt(2)
+			OG[j][i]=(imgR[j][i]+imgG[j][i]-2.0*imgB[j][i])/sqrt(6.0);
+			OR[j][i]=(imgR[j][i]+imgG[j][i]+imgB[j][i])/sqrt(3.0);
 		}
 	}
-	float* min=seekMin(imgB,imgG,imgR,nbLg,nbCol);
-	float* max=seekMax(imgB,imgG,imgR,nbLg,nbCol);
-	/*for (int i =0;i<3;i++){
-		max[i]-=min[i];
-		min[i]=0;
-	}*/
-	cout<<" b "<<min[0]<<" "<<max[0]<<endl<<" g "<<min[1]<<" "<<max[1]<<endl<<" r "<<min[2]<<" "<<max[2]<<endl;
-	system("pause");
+	for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				imgB[j][i]=OB[j][i];
+				imgG[j][i]=OG[j][i];
+				imgR[j][i]=OR[j][i];
+			}
+		}
+	/*float* min=seekMin(OB,OG,OR,nbLg,nbCol);
+	float* max=seekMax(OB,OG,OR,nbLg,nbCol);
 	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
-			//imgB[j][i]=(((OB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
-			//imgG[j][i]=(((OG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
-			//imgR[j][i]=(((OR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
-			imgB[j][i]=(((imgB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
-			imgG[j][i]=(((imgG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
-			imgR[j][i]=(((imgR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
-			//cout<<"b "<<imgB[j][i]<<" g "<<imgG[j][i]<<" r "<<imgR[j][i]<<endl;
+			imgB[j][i]=(((OB[j][i]-min[0]))/(max[0]-min[0]))*255.0;
+			imgG[j][i]=(((OG[j][i]-min[1]))/(max[1]-min[1]))*255.0;
+			imgR[j][i]=(((OR[j][i]-min[2]))/(max[2]-min[2]))*255.0;
 		}
-	}
+	}*/
 }
 
 //fonction d'enregistrement d'une image en format JPEG
@@ -311,17 +308,13 @@ Haralick primitiveCoo(float** mat){
 	primitive.Uniformite=0.0;
 	primitive.corelation=0.0;
 	primitive.homoLocal=0.0;
-	double* mux=new double[NBGRIS];
-	double* muy=new double[NBGRIS];
-	double* sigmax=new double[NBGRIS];
-	double* sigmay=new double[NBGRIS];
+	double mux=0.0;
+	double muy=0.0;
+	double sigmax=0.0;
+	double sigmay=0.0;
 	double* Mx=new double [NBGRIS];
 	double* My=new double [NBGRIS];
 	for (int i=0; i<NBGRIS;i++){
-		mux[i]=0.0;
-		muy[i]=0.0;
-		sigmax[i]=0.0;
-		sigmay[i]=0.0;
 		Mx[i]=0.0;
 		My[i]=0.0;
 	}
@@ -330,26 +323,26 @@ Haralick primitiveCoo(float** mat){
 			primitive.Energie+=pow(mat[j][i],2);
 			if (mat[j][i]!=0.0)
 				primitive.Entropie-=mat[j][i]*log10(mat[j][i]);
-			primitive.homoLocal+=mat[j][i]/(1+(pow((double)(j-i),2)));
+			primitive.homoLocal+=mat[j][i]/(1+(pow((double)(j-i),2.0)));
 			Mx[j]+=mat[j][i];
 			My[i]+=mat[j][i];
 		}
-		primitive.Uniformite+=pow(mat[i][i],2);
-
+		primitive.Uniformite+=pow(mat[i][i],2.0f);
 	}
 	for (int i=0;i<NBGRIS;i++){
-		mux[i]+=i*Mx[i];
-		muy[i]+=i*My[i];
-		sigmax[i]+=pow(i-mux[i],2)*Mx[i];
-		sigmay[i]+=pow(i-muy[i],2)*My[i];
+		mux+=(float)i*Mx[i];
+		muy+=(float)i*My[i];
+	}
+	for (int i=0;i<NBGRIS;i++){
+		sigmax+=pow((float)i-mux,2.0)*Mx[i];
+		sigmay+=pow((float)i-muy,2.0)*My[i];
 	}
 	for (int i=0;i<NBGRIS;i++){
 		for (int j=0;j<NBGRIS;j++){
-			if(sigmax[j]!=0.0&&sigmay[i]!=0.0){
-				primitive.corelation+=((j-mux[j])*(i-muy[i])*(mat[j][i]))/(sqrt(sigmax[j])*sqrt(sigmay[i]));
-			}
+			primitive.corelation+=((i-mux)*(j-muy)*(mat[j][i]));
 		}
 	}
+	primitive.corelation/=(sqrt(sigmax*sigmay));
 	return primitive;
 }
 
@@ -366,18 +359,21 @@ void createTabHaralick(double **imgHue,int nbLg, int nbCol){
 	Haralick primitive45 = primitiveCoo(NormMat45);
 	Haralick primitive90 = primitiveCoo(NormMat90);
 	Haralick primitive135 = primitiveCoo(NormMat135);
+	writeCoo(cooc0,"coo0.txt");
+	writeCoo(cooc45,"coo45.txt");
+	writeCoo(cooc90,"coo90.txt");
+	writeCoo(cooc135,"coo135.txt");
 	ecrirePrimitive(primitive0,primitive45,primitive90,primitive135);
 }
 
 void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive90,Haralick primitive135){
-	String filename="Primitive.txt";
+	String filename="Primitive.csv";
 	fstream fileHandle;
-	fileHandle.open(filename.c_str(), fstream::out | ios::binary);
-	fileHandle<<"   "<<"Entropie"<<" "<<"Energie"<<" "<<"Uniformite"<<" "<<"HomoLocal"<<" "<<"correlation"<<"\n";
-	fileHandle<<"0 "<<primitive0.Entropie<<" "<<primitive0.Energie<<" "<<primitive0.Uniformite<<" "<<primitive0.homoLocal<<" "<<primitive0.corelation<<"\n";
-	fileHandle<<"45 "<<primitive45.Entropie<<" "<<primitive45.Energie<<" "<<primitive45.Uniformite<<" "<<primitive45.homoLocal<<" "<<primitive45.corelation<<"\n";
-	fileHandle<<"90 "<<primitive90.Entropie<<" "<<primitive90.Energie<<" "<<primitive90.Uniformite<<" "<<primitive90.homoLocal<<" "<<primitive90.corelation<<"\n";
-	fileHandle<<"135 "<<primitive135.Entropie<<" "<<primitive135.Energie<<" "<<primitive135.Uniformite<<" "<<primitive135.homoLocal<<" "<<primitive135.corelation<<"\n";
-
+	fileHandle.open(filename.c_str(), fstream::out|fstream::app | ios::binary);
+	fileHandle<<"Entropie"<<";"<<"Energie"<<";"<<"Uniformite"<<";"<<"HomoLocal"<<";"<<"correlation"<<"\n";
+	fileHandle<<"0;"<<primitive0.Entropie<<";"<<primitive0.Energie<<";"<<primitive0.Uniformite<<";"<<primitive0.homoLocal<<";"<<primitive0.corelation<<"\n";
+	fileHandle<<"45;"<<primitive45.Entropie<<";"<<primitive45.Energie<<";"<<primitive45.Uniformite<<";"<<primitive45.homoLocal<<";"<<primitive45.corelation<<"\n";
+	fileHandle<<"90;"<<primitive90.Entropie<<";"<<primitive90.Energie<<";"<<primitive90.Uniformite<<";"<<primitive90.homoLocal<<";"<<primitive90.corelation<<"\n";
+	fileHandle<<"135;"<<primitive135.Entropie<<";"<<primitive135.Energie<<";"<<primitive135.Uniformite<<";"<<primitive135.homoLocal<<";"<<primitive135.corelation<<"\n";
 }
 
