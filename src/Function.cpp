@@ -440,11 +440,39 @@ double*** calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,
 			Op2[i]= new double[nbCol];
 			Op3[i]= new double[nbCol];
 		}
-		double S=0.0;
+		double S;
 		img2Op(imgB,imgG,imgR,nbLg,nbCol);
 		for (int i=1; i<nbCol-1; i++){
 			for(int j=1; j<nbLg-1; j++){
 				retVoisins(i,j,voisins,Op1);
+				double resInt=0.0;
+				for (int x=0;x<2;x++){
+					for (int y=0;y<2;y++){
+						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						resInt+=S*pow(2,7.0);
+					}
+				}
+				imgOut[0][j][i]=resInt;
+
+				retVoisins(i,j,voisins,Op2);
+				double resInt=0.0;
+				for (int x=0;x<2;x++){
+					for (int y=0;y<2;y++){
+						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						resInt+=S*pow(2,7.0);
+					}
+				}
+				imgOut[1][j][i]=resInt;
+
+				retVoisins(i,j,voisins,Op3);
+				double resInt=0.0;
+				for (int x=0;x<2;x++){
+					for (int y=0;y<2;y++){
+						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						resInt+=S*pow(2,7.0);
+					}
+				}
+				imgOut[2][j][i]=resInt;
 			}
 		}
 
