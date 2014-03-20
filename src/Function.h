@@ -48,5 +48,6 @@ void createTabHaralick(double **imgHue,int nbLg, int nbCol, std::string name);
 void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive90,Haralick primitive135, std::string name);
 void img2NOp(double** NOp1,double** NOp2,double** imgR,double** imgG,double** imgB,int nbLg, int nbCol);
 double*** calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol);
+void retVoisins(int i,int j,double** voisins,double** img);
 
 #endif /* FUNCTION_H_ */
