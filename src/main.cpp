@@ -27,12 +27,12 @@ int main(){
 	double** imgR = planCouleur(img,3);
 	int nbCol=cvGetSize(img).width; //largeur (nombre de colonnes)
 	int nbLg=cvGetSize(img).height;// hauteur (nombre de lignes)
-	double** imgHue = img2Hue(imgB, imgG, imgR,nbLg,nbCol);
+	//double** imgHue = img2Hue(imgB, imgG, imgR,nbLg,nbCol);
 	//IplImage* imgColHue = reconstruireImage8Bits(imgHue,nbLg,nbCol);
 	String out_img_name="imgLBPHue.jpg";
 	/*saveImage(out_img_name,imgColHue);
 	createTabHaralick(imgHue,nbLg,nbCol,filename);*/
-	calcLBP(imgB,imgG,imgR,nbLg,nbCol,"Opp");
+	calcLBP(imgB,imgG,imgR,nbLg,nbCol,"teinte");
 	system("pause");
 	return 0;
 }

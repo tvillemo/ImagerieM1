@@ -49,6 +49,7 @@ void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive
 void img2NOp(double** NOp1,double** NOp2,double** imgR,double** imgG,double** imgB,int nbLg, int nbCol);
 void calcLBP(double** imgR,double** imgG,double** imgB,int nbLg, int nbCol, string type);
 void retVoisins(int i,int j,double** voisins,double** img);
-void ecrireLBP(double ***LBP,int nbLg, int nbCol,string name);
+void ecrireLBP(unsigned int *LBP,int nbLg, int nbCol,string name,int nbGris);
+unsigned int* histo(double*** imgDouble, int nbLg, int nbCol,int nbGris);
 
 #endif /* FUNCTION_H_ */

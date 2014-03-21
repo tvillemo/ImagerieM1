@@ -369,23 +369,29 @@ void ecrirePrimitive(Haralick primitive0,Haralick primitive45,Haralick primitive
 }
 
 void img2NOp(double** NOp1,double** NOp2,double** imgB,double** imgG,double** imgR,int nbLg, int nbCol){
-	img2Op(imgR,imgG,imgB,nbLg,nbCol);
+	img2Op(imgB,imgG,imgR,nbLg,nbCol);
 	for (int i=0;i<nbCol;i++){
 		for (int j=0;j<nbLg;j++){
-			NOp1[j][i] = imgB[j][i]==0 ? 0 : imgR[j][i]/imgB[j][i];
-			NOp1[j][i] = imgB[j][i]==0 ? 0 : imgG[j][i]/imgB[j][i];
+			NOp1[j][i] = imgR[j][i]==0 ? 0 : imgB[j][i]/imgR[j][i];
+			NOp2[j][i] = imgR[j][i]==0 ? 0 : imgG[j][i]/imgR[j][i];
 		}
 	}
 }
 
+
+//calcul les LBP pour une image en RGB en fonction du string entre en parametre
+//type = nOpp,Opp ou teinte
 void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,string type){
 	double*** imgOut;
+	int nbGris;
 	double resInt=0.0;
+	unsigned int* histog;
 	double** voisins=new double*[3];
 	for (int i =0;i<3;i++){
 		voisins[i]=new double[3];
 	}
 	if (type=="nOpp"){
+		nbGris=512;
 		imgOut=new double**[2];
 		for (int i=0;i<2;i++){
 			imgOut[i]=new double*[nbLg];
@@ -407,6 +413,12 @@ void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,strin
 			NOp2[i]=new double[nbCol];
 		}
 		img2NOp(NOp1,NOp2,imgB,imgG,imgR,nbLg,nbCol);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				NOp1[j][i]=round(NOp1[j][i]);
+				NOp2[j][i]=round(NOp2[j][i]);
+			}
+		}
 		double S;
 		for (int i=1;i<nbCol-1;i++){
 			for (int j=1;j<nbLg-1;j++){
@@ -414,7 +426,7 @@ void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,strin
 				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
-						S=(voisins[x][y]-voisins[1][1])==0 ? 0 : 1;
+						S=(voisins[x][y]-voisins[1][1])<0 ? 0 : 1;
 						resInt+=S*pow(2,7.0);
 					}
 				}
@@ -424,7 +436,7 @@ void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,strin
 				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
-						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						S=voisins[x][y]-voisins[1][1]<0 ? 0 : 1;
 						resInt+=S*pow(2,7.0);
 					}
 				}
@@ -437,12 +449,15 @@ void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,strin
 		double min1=Min1Plan(imgOut[1],nbLg,nbCol);
 		for (int i=0;i<nbCol;i++){
 			for (int j=0;j<nbLg;j++){
-				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0));
-				imgOut[1][j][i]=(((imgOut[1][j][i]-min1))/(max1-min1));
+				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0))*255.0;
+				imgOut[1][j][i]=(((imgOut[1][j][i]-min1))/(max1-min1))*255.0;
 			}
 		}
+		histog=histo(imgOut,nbLg,nbCol,nbGris);
+
 	}
 	else if(type=="Opp"){
+		nbGris=768;
 		imgOut=new double**[3];
 		for (int i=0; i<3; i++){
 			imgOut[i]=new double*[nbLg];
@@ -457,43 +472,42 @@ void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,strin
 				}
 			}
 		}
-		double** Op1=new double*[nbLg];
-		double** Op2=new double*[nbLg];
-		double** Op3=new double*[nbLg];
-		for (int i=0; i<nbLg; i++){
-			Op1[i]= new double[nbCol];
-			Op2[i]= new double[nbCol];
-			Op3[i]= new double[nbCol];
-		}
 		double S;
 		img2Op(imgB,imgG,imgR,nbLg,nbCol);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				imgB[j][i]=round(imgB[j][i]);
+				imgG[j][i]=round(imgG[j][i]);
+				imgR[j][i]=round(imgR[j][i]);
+			}
+		}
 		for (int i=1; i<nbCol-1; i++){
 			for(int j=1; j<nbLg-1; j++){
-				retVoisins(i,j,voisins,Op1);
+				retVoisins(i,j,voisins,imgB);
 				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
-						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						S=voisins[x][y]-voisins[1][1]<0 ? 0 : 1;
 						resInt+=S*pow(2,7.0);
 					}
 				}
 				imgOut[0][j][i]=resInt;
 
-				retVoisins(i,j,voisins,Op2);
+				retVoisins(i,j,voisins,imgG);
 				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
-						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						S=voisins[x][y]-voisins[1][1]<0 ? 0 : 1;
 						resInt+=S*pow(2,7.0);
 					}
 				}
 				imgOut[1][j][i]=resInt;
 
-				retVoisins(i,j,voisins,Op3);
+				retVoisins(i,j,voisins,imgR);
 				resInt=0.0;
 				for (int x=0;x<2;x++){
 					for (int y=0;y<2;y++){
-						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+						S=voisins[x][y]-voisins[1][1]<0 ? 0 : 1;
 						resInt+=S*pow(2,7.0);
 					}
 				}
@@ -508,14 +522,16 @@ void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,strin
 		double min2=Min1Plan(imgOut[2],nbLg,nbCol);
 		for (int i=0;i<nbCol;i++){
 			for (int j=0;j<nbLg;j++){
-				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0));
-				imgOut[1][j][i]=(((imgOut[1][j][i]-min1))/(max1-min1));
-				imgOut[2][j][i]=(((imgOut[2][j][i]-min2))/(max2-min2));
+				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0))*255.0;
+				imgOut[1][j][i]=(((imgOut[1][j][i]-min1))/(max1-min1))*255.0;
+				imgOut[2][j][i]=(((imgOut[2][j][i]-min2))/(max2-min2))*255.0;
 			}
 		}
+		histog=histo (imgOut,nbLg,nbCol,nbGris);
 
 	}
 	else{
+		nbGris=256;
 		imgOut=new double**[1];
 		double** imgHue=new double*[nbLg];
 		imgOut[0]=new double*[nbLg];
@@ -530,14 +546,21 @@ void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,strin
 		}
 		double S;
 		imgHue=img2Hue(imgB,imgG,imgR,nbLg,nbCol);
+		for (int i=0;i<nbCol;i++){
+			for (int j=0;j<nbLg;j++){
+				imgHue[j][i]=round(imgHue[j][i]);
+			}
+		}
 		for (int i=1;i<nbCol-1;i++){
 			for (int j=1;j<nbLg-1;j++){
 				retVoisins(i,j,voisins,imgHue);
 				double resInt=0.0;
-				for (int x=0;x<2;x++){
-					for (int y=0;y<2;y++){
-						S=voisins[x][y]-voisins[1][1]==0 ? 0 : 1;
+				for (int x=0;x<3;x++){
+					for (int y=0;y<3;y++){
+						S=(voisins[x][y]-voisins[1][1])<0 ? 0 : 1;
 						resInt+=S*pow(2,7.0);
+						//cout<<voisins[x][y]-voisins[1][1]<<" "<<S<<" "<<resInt<<endl;
+						//system("pause");
 					}
 				}
 				imgOut[0][j][i]=resInt;
@@ -547,11 +570,12 @@ void calcLBP(double** imgB,double** imgG,double** imgR,int nbLg, int nbCol,strin
 		double min0=Min1Plan(imgOut[0],nbLg,nbCol);
 		for (int i=0;i<nbCol;i++){
 			for (int j=0;j<nbLg;j++){
-				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0));
+				imgOut[0][j][i]=(((imgOut[0][j][i]-min0))/(max0-min0))*255.0;
 			}
 		}
+		histog=histo (imgOut,nbLg,nbCol,nbGris);
 	}
-	ecrireLBP(imgOut,nbLg,nbCol,type);
+	ecrireLBP(histog,nbLg,nbCol,type,nbGris);
 }
 
 void retVoisins(int i,int j,double** voisins,double** img){
@@ -567,53 +591,85 @@ void retVoisins(int i,int j,double** voisins,double** img){
 
 }
 
-void ecrireLBP(double ***LBP,int nbLg, int nbCol,string name){
-	if(name=="nOpp"){
-		String filename0=name+"0.csv";
-		fstream fileHandle0;
-		fileHandle0.open(filename0.c_str(), fstream::out|fstream::app | ios::binary);
-		String filename1=name+"1.csv";
-		fstream fileHandle1;
-		fileHandle1.open(filename1.c_str(), fstream::out|fstream::app | ios::binary);
-		for (int i=0;i<nbCol;i++){
-			for (int j=0;j<nbLg;j++){
-				fileHandle0<<LBP[0][j][i]<<";";
-				fileHandle1<<LBP[1][j][i]<<";";
+void ecrireLBP(unsigned int *LBP,int nbLg, int nbCol,string name,int nbGris){
+	String filename=name+".csv";
+	fstream fileHandle;
+	fileHandle.open(filename.c_str(), fstream::out|fstream::app | ios::binary);
+	for (int i=0;i<nbGris;i++){
+		fileHandle<<LBP[i]<<";";
+	}
+}
+
+/* Retourne l'histogramme du plan couleur passe en parametre*/
+unsigned int* histo(double*** imgDouble, int nbLg, int nbCol,int nbGris)
+{
+	unsigned int *** img;
+	if(nbGris==256){
+		img=new unsigned int **[1];
+		img[0]=new unsigned int*[nbLg];
+		for (int i=0;i<nbLg;i++){
+			img[0][i]=new unsigned int[nbCol];
+		}
+		for (int j=0;j<nbLg;j++){
+			for (int k=0;k<nbCol;k++){
+				img[0][j][k]=(unsigned int)round(imgDouble[0][j][k]);
 			}
-			fileHandle0<<"\n";
-			fileHandle1<<"\n";
 		}
 	}
-	else if(name=="Opp"){
-		String filename0=name+"0.csv";
-		fstream fileHandle0;
-		fileHandle0.open(filename0.c_str(), fstream::out|fstream::app | ios::binary);
-		String filename1=name+"1.csv";
-		fstream fileHandle1;
-		fileHandle1.open(filename1.c_str(), fstream::out|fstream::app | ios::binary);
-		String filename2=name+"2.csv";
-		fstream fileHandle2;
-		fileHandle2.open(filename2.c_str(), fstream::out|fstream::app | ios::binary);
-		for (int i=0;i<nbCol;i++){
+	else if(nbGris==512){
+		img=new unsigned int **[2];
+		for (int i=0;i<2;i++){
+			img[i]=new unsigned int *[nbLg];
 			for (int j=0;j<nbLg;j++){
-				fileHandle0<<LBP[0][j][i]<<";";
-				fileHandle1<<LBP[1][j][i]<<";";
-				fileHandle2<<LBP[2][j][i]<<";";
+				img[i][j]=new unsigned int[nbCol];
 			}
-			fileHandle0<<"\n";
-			fileHandle1<<"\n";
-			fileHandle2<<"\n";
+		}
+		for (int i=0;i<2;i++){
+			for (int j=0;j<nbLg;j++){
+				for (int k=0;k<nbCol;k++){
+					img[i][j][k]=(unsigned int)round(imgDouble[i][j][k]);
+				}
+			}
 		}
 	}
-	else{
-		String filename0=name+".csv";
-		fstream fileHandle0;
-		fileHandle0.open(filename0.c_str(), fstream::out|fstream::app | ios::binary);
-		for (int i=0;i<nbCol;i++){
+	else {
+		img=new unsigned int **[3];
+		for (int i=0;i<3;i++){
+			img[i]=new unsigned int *[nbLg];
 			for (int j=0;j<nbLg;j++){
-				fileHandle0<<LBP[0][j][i]<<";";
+				img[i][j]=new unsigned int[nbCol];
 			}
-			fileHandle0<<"\n";
+		}
+		for (int i=0;i<3;i++){
+			for (int j=0;j<nbLg;j++){
+				for (int k=0;k<nbCol;k++){
+					img[i][j][k]=(unsigned int)round(imgDouble[i][j][k]);
+				}
+			}
 		}
 	}
+	unsigned int* h = new unsigned int [nbGris];
+	for (int j=0 ; j < nbGris; j++){
+		h[j]=0;
+	}
+	for (int i=0; i < nbCol; i++){
+		for (int j=0 ; j < nbLg; j++){
+			h[img[0][j][i]]++;
+		}
+	}
+	if(nbGris>=512){
+		for (int i=0; i < nbCol; i++){
+			for (int j=0 ; j < nbLg; j++){
+				h[img[1][j][i]+256]++;
+			}
+		}
+	}
+	if(nbGris==768){
+		for (int i=0; i < nbCol; i++){
+			for (int j=0 ; j < nbLg; j++){
+				h[img[2][j][i]+512]++;
+			}
+		}
+	}
+	return h;
 }
